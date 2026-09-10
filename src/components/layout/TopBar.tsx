@@ -1,83 +1,74 @@
 import { useAppStore } from '@/store/useAppStore'
 import { Bell, Search } from 'lucide-react'
 
-const PAGE_TITLES: Record<string, { title: string; desc: string }> = {
-  dashboard:     { title: 'Dashboard',      desc: 'Overview & system metrics' },
-  conversations: { title: 'Conversations',  desc: 'All Apple Support interactions' },
-  workbench:     { title: 'AI Workbench',   desc: 'Test the agent in real-time' },
-  knowledge:     { title: 'Knowledge Base', desc: 'RAG vector index & search' },
-  settings:      { title: 'Settings',       desc: 'Configuration & preferences' },
+const PAGE_META: Record<string, { title: string; subtitle: string }> = {
+  dashboard:     { title: 'Overview',           subtitle: 'Analytics & Live Metrics' },
+  conversations: { title: 'Conversations',      subtitle: 'Apple Support Inquiries' },
+  workbench:     { title: 'AI Workbench',       subtitle: 'Pipeline Sandbox' },
+  knowledge:     { title: 'Knowledge Base',     subtitle: 'Qdrant Vector Index' },
+  settings:      { title: 'Settings',           subtitle: 'System & Safety Rules' },
 }
 
 export default function TopBar() {
   const { activePage } = useAppStore()
-  const info = PAGE_TITLES[activePage] ?? { title: activePage, desc: '' }
+  const meta = PAGE_META[activePage] ?? { title: activePage, subtitle: 'SupportMind' }
 
   return (
-    <header style={{
-      height: 60,
-      borderBottom: '1px solid var(--border)',
-      background: 'rgba(9,9,15,0.8)',
-      backdropFilter: 'blur(16px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 24px',
-      position: 'sticky',
-      top: 0,
-      zIndex: 10,
-      flexShrink: 0,
-    }}>
-      {/* Page title */}
-      <div>
-        <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-          {info.title}
-        </div>
-        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{info.desc}</div>
+    <header className="h-[52px] bg-white/90 backdrop-blur-xl border-b border-black/[0.08] sticky top-0 z-30 flex items-center justify-between px-6 flex-shrink-0 select-none">
+      {/* Left: Window Title & Subtitle in Apple HIG Style */}
+      <div className="flex items-center gap-2.5">
+        <span className="text-sm font-semibold text-[#1d1d1f] tracking-tight">
+          {meta.title}
+        </span>
+        <span className="text-black/20 text-xs">•</span>
+        <span className="text-xs text-[#86868b] font-normal hidden sm:inline">
+          {meta.subtitle}
+        </span>
       </div>
 
-      {/* Right side */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        {/* Search pill */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '8px',
-          background: 'var(--bg-card)', border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-md)', padding: '6px 12px',
-          color: 'var(--text-muted)', fontSize: '0.8rem',
-        }}>
-          <Search size={13} />
-          <span>Search...</span>
-          <span style={{
-            background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-            borderRadius: 4, padding: '1px 5px', fontSize: '0.65rem', color: 'var(--text-muted)',
-          }}>⌘K</span>
+      {/* Right: Clean Search, System Status, Notifications & Profile */}
+      <div className="flex items-center gap-3">
+        {/* Apple System Status Pill */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-black/[0.04] border border-black/[0.04] text-[11px] font-medium text-[#424245]">
+          <span className="w-2 h-2 rounded-full bg-[#34c759] inline-block" />
+          <span>Operational</span>
+          <span className="text-black/20">|</span>
+          <span className="text-[#86868b]">218ms</span>
         </div>
 
-        {/* Notifications */}
-        <button style={{
-          width: 34, height: 34, borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border)', background: 'var(--bg-card)',
-          color: 'var(--text-secondary)', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          position: 'relative',
-        }}>
-          <Bell size={15} />
-          <span style={{
-            position: 'absolute', top: 5, right: 5,
-            width: 7, height: 7, borderRadius: '50%',
-            background: 'var(--rose)', border: '2px solid var(--bg-base)',
-          }} />
+        {/* Apple Search Input */}
+        <div className="relative flex items-center">
+          <Search size={13} className="absolute left-2.5 text-[#86868b] pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search tickets, IDs..."
+            className="w-48 xl:w-56 pl-8 pr-10 py-1 text-xs bg-black/[0.04] hover:bg-black/[0.07] focus:bg-white focus:ring-1 focus:ring-[#0071e3] border border-transparent focus:border-[#0071e3] rounded-lg outline-none transition-all placeholder-[#86868b] text-[#1d1d1f]"
+          />
+          <kbd className="absolute right-2 px-1.5 py-0.5 text-[9px] font-mono bg-white border border-black/10 rounded text-[#86868b] shadow-2xs">
+            ⌘K
+          </kbd>
+        </div>
+
+        {/* Notifications Icon Button */}
+        <button
+          className="relative p-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/[0.04] transition-colors"
+          title="Notifications"
+        >
+          <Bell size={16} />
+          <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#ff3b30]" />
         </button>
 
-        {/* Status indicator */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '6px',
-          background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)',
-          borderRadius: 'var(--radius-md)', padding: '5px 10px',
-          fontSize: '0.72rem', fontWeight: 600, color: 'var(--emerald)',
-        }}>
-          <span className="pulse-dot" style={{ background: 'var(--emerald)' }} />
-          Operational
+        {/* Hairline Divider */}
+        <div className="w-[1px] h-4 bg-black/[0.08]" />
+
+        {/* User Profile */}
+        <div className="flex items-center gap-2 cursor-pointer group">
+          <div className="w-7 h-7 rounded-full bg-[#1d1d1f] text-white flex items-center justify-center text-[11px] font-semibold">
+            
+          </div>
+          <span className="text-xs font-medium text-[#1d1d1f] hidden xl:inline group-hover:text-[#0071e3] transition-colors">
+            Apple Support
+          </span>
         </div>
       </div>
     </header>

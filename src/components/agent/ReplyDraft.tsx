@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Copy, CheckCheck, Edit2, Send } from 'lucide-react'
+import { Copy, CheckCheck, Edit2, Sparkles } from 'lucide-react'
 
 interface ReplyDraftProps {
   reply: string
@@ -19,95 +19,65 @@ export default function ReplyDraft({ reply, ragSourcesUsed = 0, processingTimeMs
   }
 
   return (
-    <div style={{
-      border: '1px solid rgba(0,102,204,0.25)',
-      borderRadius: 'var(--radius-lg)',
-      background: 'rgba(0,102,204,0.05)',
-      overflow: 'hidden',
-    }}>
+    <div className="rounded-2xl border border-black/[0.06] bg-white overflow-hidden shadow-2xs">
       {/* Header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '10px 14px', borderBottom: '1px solid rgba(0,102,204,0.15)',
-        background: 'rgba(0,102,204,0.08)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Send size={13} style={{ color: '#5ba8f5' }} />
-          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#5ba8f5', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            Drafted Reply
+      <div className="flex items-center justify-between px-4 py-2.5 bg-black/[0.02] border-b border-black/[0.04]">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-md bg-[#0071e3] text-white flex items-center justify-center">
+            <Sparkles size={11} />
+          </div>
+          <span className="text-xs font-semibold text-[#1d1d1f]">
+            Drafted Response
           </span>
           {ragSourcesUsed > 0 && (
-            <span style={{
-              fontSize: '0.65rem', padding: '1px 7px', borderRadius: '99px',
-              background: 'rgba(52,211,153,0.1)', color: 'var(--emerald)',
-              border: '1px solid rgba(52,211,153,0.2)', fontWeight: 600,
-            }}>
-              {ragSourcesUsed} RAG sources
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#0071e3]/10 text-[#0071e3]">
+              {ragSourcesUsed} Grounded Citations
             </span>
           )}
         </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
+
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setEditing(!editing)}
-            style={{
-              padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)',
-              background: editing ? 'rgba(0,102,204,0.2)' : 'var(--bg-card)',
-              color: editing ? '#5ba8f5' : 'var(--text-muted)',
-              cursor: 'pointer', fontSize: '0.7rem', fontFamily: 'inherit',
-              display: 'flex', alignItems: 'center', gap: '4px',
-            }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-[#424245] bg-white border border-black/[0.1] hover:border-black/[0.2] transition-all cursor-pointer"
           >
-            <Edit2 size={11} />{editing ? 'Done' : 'Edit'}
+            <Edit2 size={11} />
+            <span>{editing ? 'Done' : 'Edit'}</span>
           </button>
           <button
             onClick={handleCopy}
-            style={{
-              padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)',
-              background: copied ? 'rgba(52,211,153,0.1)' : 'var(--bg-card)',
-              color: copied ? 'var(--emerald)' : 'var(--text-muted)',
-              cursor: 'pointer', fontSize: '0.7rem', fontFamily: 'inherit',
-              display: 'flex', alignItems: 'center', gap: '4px',
-              transition: 'all 200ms ease',
-            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border transition-all cursor-pointer ${
+              copied
+                ? 'bg-[#34c759]/10 border-[#34c759]/30 text-[#248a3d]'
+                : 'bg-white border-black/[0.1] text-[#424245] hover:border-black/[0.2]'
+            }`}
           >
             {copied ? <CheckCheck size={11} /> : <Copy size={11} />}
-            {copied ? 'Copied!' : 'Copy'}
+            <span>{copied ? 'Copied' : 'Copy'}</span>
           </button>
         </div>
       </div>
 
-      {/* Reply body */}
-      <div style={{ padding: '14px' }}>
+      {/* Body */}
+      <div className="p-4">
         {editing ? (
           <textarea
             value={editedReply}
-            onChange={e => setEditedReply(e.target.value)}
-            style={{
-              width: '100%', minHeight: '100px', resize: 'vertical',
-              background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)', color: 'var(--text-primary)',
-              fontSize: '0.875rem', fontFamily: 'inherit', lineHeight: 1.6,
-              padding: '10px 12px', outline: 'none',
-            }}
-            onFocus={e => (e.target.style.borderColor = 'rgba(0,102,204,0.5)')}
-            onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+            onChange={(e) => setEditedReply(e.target.value)}
+            className="w-full min-h-[100px] p-3 text-xs sm:text-sm text-[#1d1d1f] bg-[#f5f5f7] border border-[#0071e3] rounded-xl outline-none leading-relaxed resize-y"
           />
         ) : (
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.65, margin: 0 }}>
+          <p className="text-xs sm:text-sm text-[#1d1d1f] font-normal leading-relaxed">
             {editedReply}
           </p>
         )}
       </div>
 
-      {/* Footer meta */}
-      {processingTimeMs && (
-        <div style={{
-          padding: '6px 14px', borderTop: '1px solid var(--border)',
-          fontSize: '0.68rem', color: 'var(--text-muted)',
-        }}>
-          Generated in {processingTimeMs}ms
-        </div>
-      )}
+      {/* Footer */}
+      <div className="flex items-center justify-between px-4 py-2 bg-black/[0.02] border-t border-black/[0.04] text-[11px] text-[#86868b]">
+        <span>Apple Support Signature (^AS)</span>
+        {processingTimeMs && <span>Generated in {processingTimeMs}ms</span>}
+      </div>
     </div>
   )
 }

@@ -1,39 +1,48 @@
 import type { Intent } from '@/store/useAppStore'
 
 const INTENT_CONFIG: Record<Intent, { label: string; color: string; bg: string; border: string }> = {
-  device_issue:         { label: 'Device Issue',         color: '#f87171', bg: 'rgba(248,113,113,0.1)',  border: 'rgba(248,113,113,0.25)' },
-  account_access:       { label: 'Account Access',       color: '#a78bfa', bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.25)' },
-  app_crash:            { label: 'App / Software',       color: '#fb923c', bg: 'rgba(251,146,60,0.1)',  border: 'rgba(251,146,60,0.25)'  },
-  billing_payment:      { label: 'Billing & Payment',    color: '#fbbf24', bg: 'rgba(251,191,36,0.1)',  border: 'rgba(251,191,36,0.25)'  },
-  warranty_repair:      { label: 'Warranty & Repair',    color: '#34d399', bg: 'rgba(52,211,153,0.1)',  border: 'rgba(52,211,153,0.25)'  },
-  setup_activation:     { label: 'Setup & Activation',   color: '#5ba8f5', bg: 'rgba(91,168,245,0.1)',  border: 'rgba(91,168,245,0.25)'  },
-  network_connectivity: { label: 'Network',              color: '#67e8f9', bg: 'rgba(103,232,249,0.1)', border: 'rgba(103,232,249,0.25)' },
-  other_general:        { label: 'General',              color: '#94a3b8', bg: 'rgba(148,163,184,0.08)',border: 'rgba(148,163,184,0.2)'  },
+  device_issue:         { label: 'Device Issue',         color: '#d70015', bg: 'rgba(255, 59, 48, 0.08)',  border: 'rgba(255, 59, 48, 0.16)' },
+  account_access:       { label: 'Account Access',       color: '#4341b5', bg: 'rgba(88, 86, 214, 0.08)', border: 'rgba(88, 86, 214, 0.16)' },
+  app_crash:            { label: 'App / Software',       color: '#c97500', bg: 'rgba(255, 149, 0, 0.08)', border: 'rgba(255, 149, 0, 0.16)' },
+  billing_payment:      { label: 'Billing & Payment',    color: '#997500', bg: 'rgba(255, 204, 0, 0.12)', border: 'rgba(255, 204, 0, 0.22)' },
+  warranty_repair:      { label: 'Warranty & Repair',    color: '#248a3d', bg: 'rgba(52, 199, 89, 0.08)', border: 'rgba(52, 199, 89, 0.16)' },
+  setup_activation:     { label: 'Setup & Activation',   color: '#0071e3', bg: 'rgba(0, 113, 227, 0.08)', border: 'rgba(0, 113, 227, 0.16)' },
+  network_connectivity: { label: 'Network & Signal',     color: '#1d8496', bg: 'rgba(48, 176, 199, 0.08)', border: 'rgba(48, 176, 199, 0.16)' },
+  other_general:        { label: 'General Inquiries',    color: '#636366', bg: 'rgba(142, 142, 147, 0.08)', border: 'rgba(142, 142, 147, 0.16)' },
 }
 
 interface IntentBadgeProps {
   intent: Intent | string
   size?: 'sm' | 'md'
+  showDot?: boolean
 }
 
-export default function IntentBadge({ intent, size = 'sm' }: IntentBadgeProps) {
+export default function IntentBadge({ intent, size = 'sm', showDot = true }: IntentBadgeProps) {
   const cfg = INTENT_CONFIG[intent as Intent] ?? {
-    label: intent, color: '#94a3b8', bg: 'rgba(148,163,184,0.08)', border: 'rgba(148,163,184,0.2)',
+    label: intent || 'Inquiry',
+    color: '#636366',
+    bg: 'rgba(142, 142, 147, 0.08)',
+    border: 'rgba(142, 142, 147, 0.16)',
   }
-  const px = size === 'sm' ? '6px 10px' : '4px 10px'
-  const fs = size === 'sm' ? '0.68rem' : '0.75rem'
+
+  const paddingClass = size === 'sm' ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs'
 
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: '5px',
-      padding: px, borderRadius: '99px',
-      background: cfg.bg, color: cfg.color,
-      border: `1px solid ${cfg.border}`,
-      fontSize: fs, fontWeight: 600, letterSpacing: '0.03em',
-      whiteSpace: 'nowrap',
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.color, flexShrink: 0 }} />
-      {cfg.label}
+    <span
+      className={`inline-flex items-center gap-1.5 font-medium rounded-full border transition-colors ${paddingClass}`}
+      style={{
+        backgroundColor: cfg.bg,
+        color: cfg.color,
+        borderColor: cfg.border,
+      }}
+    >
+      {showDot && (
+        <span
+          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+          style={{ backgroundColor: cfg.color }}
+        />
+      )}
+      <span>{cfg.label}</span>
     </span>
   )
 }

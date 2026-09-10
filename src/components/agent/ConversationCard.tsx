@@ -1,6 +1,6 @@
 import type { Conversation } from '@/store/useAppStore'
 import IntentBadge from './IntentBadge'
-import { Clock, ArrowUpRight, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Clock, ShieldCheck, AlertTriangle, CheckCircle2 } from 'lucide-react'
 
 interface ConversationCardProps {
   conversation: Conversation
@@ -20,69 +20,82 @@ function timeAgo(iso: string) {
 
 export default function ConversationCard({ conversation: c, active, onClick }: ConversationCardProps) {
   const isEscalated = c.escalation_status === 'escalated'
+  const isResolved = c.is_resolved
+  const initials = (c.customer_name ?? c.customer_handle).replace('@', '').slice(0, 2).toUpperCase()
 
   return (
-    <button
+    <div
       onClick={onClick}
-      style={{
-        display: 'flex', flexDirection: 'column', gap: '10px',
-        padding: '14px 16px', textAlign: 'left', width: '100%',
-        background: active ? 'rgba(0,102,204,0.1)' : 'var(--bg-card)',
-        border: `1px solid ${active ? 'rgba(0,102,204,0.35)' : 'var(--border)'}`,
-        borderRadius: 'var(--radius-lg)', cursor: 'pointer',
-        transition: 'all 200ms ease', fontFamily: 'inherit',
-        boxShadow: active ? '0 0 0 1px rgba(0,102,204,0.15)' : 'none',
-      }}
-      onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-card-hover)' }}
-      onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-card)' }}
+      className={`group bg-white rounded-2xl p-5 border transition-all duration-200 cursor-pointer text-left flex flex-col justify-between select-none ${
+        active
+          ? 'border-[#0071e3] shadow-sm ring-1 ring-[#0071e3]'
+          : 'border-black/[0.06] hover:border-black/[0.12] hover:shadow-md'
+      }`}
     >
-      {/* Header row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-          {/* Avatar */}
-          <div style={{
-            width: 30, height: 30, borderRadius: '50%',
-            background: `hsl(${(c.customer_handle.charCodeAt(1) * 47) % 360}, 60%, 35%)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '0.7rem', fontWeight: 700, color: '#fff', flexShrink: 0,
-          }}>
-            {(c.customer_name ?? c.customer_handle).charAt(0).toUpperCase()}
+      {/* Top Header: Avatar with Status Dot + Name & Handle */}
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Avatar with subtle presence indicator */}
+          <div className="relative flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-black/[0.05] flex items-center justify-center text-[#1d1d1f] font-semibold text-xs border border-black/[0.04]">
+              {initials}
+            </div>
+            <span
+              className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                isEscalated ? 'bg-[#ff9500]' : isResolved ? 'bg-[#34c759]' : 'bg-[#0071e3]'
+              }`}
+            />
           </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+
+          <div className="min-w-0">
+            <div className="text-xs font-semibold text-[#1d1d1f] truncate group-hover:text-[#0071e3] transition-colors">
               {c.customer_name ?? c.customer_handle}
             </div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.customer_handle}</div>
+            <div className="text-[11px] text-[#86868b] truncate">
+              {c.customer_handle}
+            </div>
           </div>
         </div>
 
-        {/* Status */}
-        {c.is_resolved ? (
-          <CheckCircle2 size={14} style={{ color: 'var(--emerald)', flexShrink: 0 }} />
-        ) : isEscalated ? (
-          <AlertTriangle size={14} style={{ color: 'var(--amber)', flexShrink: 0 }} />
-        ) : (
-          <ArrowUpRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-        )}
+        {/* Intent Badge */}
+        {c.intent && <IntentBadge intent={c.intent} size="sm" />}
       </div>
 
-      {/* Message preview */}
-      <p style={{
-        fontSize: '0.78rem', color: 'var(--text-secondary)',
-        lineHeight: 1.5, margin: 0,
-        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-      }}>
-        {c.original_message}
+      {/* Message Snippet */}
+      <p className="text-xs text-[#515154] leading-relaxed line-clamp-2 mb-4 font-normal">
+        "{c.original_message}"
       </p>
 
-      {/* Footer */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-        {c.intent && <IntentBadge intent={c.intent} size="sm" />}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontSize: '0.68rem', flexShrink: 0 }}>
-          <Clock size={10} />
-          {timeAgo(c.created_at)}
+      {/* Footer: ID, Time & Status */}
+      <div className="pt-3 border-t border-black/[0.04] flex items-center justify-between text-[11px] text-[#86868b]">
+        <div className="flex items-center gap-1.5 font-mono">
+          <span className="text-[#a1a1a6]">#{c.id.replace('conv_', '')}</span>
+          <span>•</span>
+          <span className="flex items-center gap-1 font-sans text-[11px]">
+            <Clock size={11} />
+            {timeAgo(c.created_at)}
+          </span>
+        </div>
+
+        <div>
+          {isResolved ? (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#248a3d]">
+              <CheckCircle2 size={12} className="text-[#34c759]" />
+              Resolved
+            </span>
+          ) : isEscalated ? (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#c97500]">
+              <AlertTriangle size={12} className="text-[#ff9500]" />
+              Escalated
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0071e3]">
+              <ShieldCheck size={12} className="text-[#0071e3]" />
+              Auto-Handled
+            </span>
+          )}
         </div>
       </div>
-    </button>
+    </div>
   )
 }

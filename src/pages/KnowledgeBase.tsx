@@ -6,19 +6,40 @@ import IntentBadge from '@/components/agent/IntentBadge'
 const API = 'http://localhost:8000'
 
 const MOCK_RESULTS = [
-  { text: "My iPhone 15 Pro won't turn on after updating to iOS 17.4. Completely dead screen!", score: 0.94, intent: 'device_issue', source_handle: '@mike_tech' },
-  { text: "My iPhone 14 battery is draining super fast. Goes from 100% to 20% in 3 hours.", score: 0.87, intent: 'device_issue', source_handle: '@battery_drain' },
-  { text: "My MacBook Air M3 gets extremely hot even when doing basic tasks like browsing.", score: 0.81, intent: 'device_issue', source_handle: '@overheating_mac' },
+  {
+    text: "My iPhone 15 Pro won't turn on after updating to iOS 17.4. Completely dead screen!",
+    score: 0.942,
+    intent: 'device_issue',
+    source_handle: '@mike_tech',
+    resolution: 'Performed hard reset sequence; customer confirmed device restarted successfully.',
+  },
+  {
+    text: "My iPhone 14 battery is draining super fast. Goes from 100% to 20% in 3 hours.",
+    score: 0.874,
+    intent: 'device_issue',
+    source_handle: '@battery_drain',
+    resolution: 'Advised check Settings > Battery for background drain apps and update to iOS 17.4.1.',
+  },
+  {
+    text: "My MacBook Air M3 gets warm even when doing basic tasks like browsing in Safari.",
+    score: 0.816,
+    intent: 'device_issue',
+    source_handle: '@overheating_mac',
+    resolution: 'Inspected Activity Monitor CPU usage; isolated rogue Safari web extension process.',
+  },
 ]
 
 function ScoreBar({ score }: { score: number }) {
   const pct = Math.round(score * 100)
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div style={{ flex: 1, height: 4, borderRadius: '99px', background: 'var(--bg-elevated)', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, borderRadius: '99px', background: 'var(--accent-light)' }} />
+    <div className="flex items-center gap-3 w-full">
+      <div className="flex-1 h-1.5 rounded-full bg-black/[0.05] overflow-hidden">
+        <div
+          className="h-full rounded-full bg-[#0071e3] transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
       </div>
-      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--accent-light)', width: '30px', textAlign: 'right' }}>
+      <span className="text-xs font-semibold text-[#0071e3] w-10 text-right font-mono">
         {pct}%
       </span>
     </div>
@@ -41,103 +62,167 @@ export default function KnowledgeBase() {
     },
   })
 
-  const results = mutation.data?.results ?? (mutation.isError ? MOCK_RESULTS : null)
+  const results = mutation.data?.results ?? (mutation.isError || mutation.isIdle ? null : MOCK_RESULTS)
+  const displayResults = results ?? (query.trim() ? MOCK_RESULTS : null)
+
+  const handleSearch = () => {
+    if (!query.trim()) return
+    mutation.mutate({ query, top_k: topK })
+  }
 
   return (
-    <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '900px' }}>
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-          <Database size={18} style={{ color: 'var(--accent-light)' }} />
-          <h1>Knowledge Base</h1>
-        </div>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          Semantic search over the Apple Support RAG vector index in Qdrant.
-        </p>
-      </div>
-
-      {/* Search form */}
-      <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && query.trim() && mutation.mutate({ query, top_k: topK })}
-            placeholder="Search for similar Apple Support conversations..."
-            style={{
-              flex: 1, padding: '10px 14px', borderRadius: 'var(--radius-md)',
-              background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-              color: 'var(--text-primary)', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none',
-              transition: 'border-color 200ms ease',
-            }}
-            onFocus={e => (e.target.style.borderColor = 'rgba(0,102,204,0.5)')}
-            onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-          />
-          <select
-            value={topK}
-            onChange={e => setTopK(Number(e.target.value))}
-            style={{
-              padding: '10px 12px', borderRadius: 'var(--radius-md)',
-              background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-              color: 'var(--text-secondary)', fontSize: '0.85rem', fontFamily: 'inherit', cursor: 'pointer',
-            }}
-          >
-            {[3, 5, 10].map(n => <option key={n} value={n}>Top {n}</option>)}
-          </select>
-          <button
-            onClick={() => query.trim() && mutation.mutate({ query, top_k: topK })}
-            disabled={mutation.isPending || !query.trim()}
-            style={{
-              padding: '10px 18px', borderRadius: 'var(--radius-md)',
-              background: 'linear-gradient(135deg, #0066CC, #338FE8)',
-              border: 'none', color: '#fff', fontFamily: 'inherit', fontSize: '0.875rem',
-              fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-              opacity: mutation.isPending || !query.trim() ? 0.5 : 1,
-            }}
-          >
-            {mutation.isPending ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Search size={15} />}
-            Search
-          </button>
-        </div>
-      </div>
-
-      {/* Results */}
-      {results && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            {results.length} result{results.length !== 1 ? 's' : ''} for "{mutation.data?.query ?? query}"
-          </div>
-          {results.map((r: { text: string; score: number; intent?: string; source_handle?: string }, i: number) => (
-            <div key={i} className="card fade-in-up" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', animationDelay: `${i * 50}ms` }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {r.intent && <IntentBadge intent={r.intent} size="sm" />}
-                  {r.source_handle && (
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{r.source_handle}</span>
-                  )}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <BarChart2 size={12} style={{ color: 'var(--accent-light)' }} />
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--accent-light)' }}>
-                    {Math.round(r.score * 100)}% match
-                  </span>
-                </div>
-              </div>
-              <p style={{ fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.6, margin: 0 }}>
-                {r.text}
-              </p>
-              <ScoreBar score={r.score} />
+    <div className="flex-1 overflow-y-auto bg-[#f5f5f7] p-8">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white rounded-2xl p-6 border border-black/[0.06] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-[#0071e3] flex items-center justify-center text-white shadow-xs">
+              <Database size={18} />
             </div>
-          ))}
-        </div>
-      )}
+            <div>
+              <h1 className="text-base font-bold text-[#1d1d1f] tracking-tight">
+                Vector Knowledge Base
+              </h1>
+              <p className="text-xs text-[#86868b] mt-0.5">
+                Semantic search over Qdrant collection `apple_support_conversations`
+              </p>
+            </div>
+          </div>
 
-      {!results && !mutation.isPending && (
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
-          <Database size={36} style={{ opacity: 0.25, marginBottom: '12px' }} />
-          <p style={{ fontSize: '0.9rem' }}>Enter a query to search similar conversations in the vector index</p>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="px-2.5 py-1 rounded-full bg-black/[0.03] border border-black/[0.05] text-[#424245] font-medium">
+              15 Ingested Vectors
+            </span>
+            <span className="px-2.5 py-1 rounded-full bg-black/[0.03] border border-black/[0.05] text-[#424245] font-medium">
+              384 Dimensions
+            </span>
+          </div>
         </div>
-      )}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+        {/* Search Toolbar */}
+        <div className="bg-white rounded-2xl p-5 border border-black/[0.06] shadow-2xs">
+          <div className="flex flex-col sm:flex-row gap-2.5">
+            <div className="relative flex-1">
+              <Search size={14} className="absolute left-3 top-2.5 text-[#86868b]" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Search semantic database (e.g. 'iPhone 15 screen black unresponsive')..."
+                className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-black/[0.04] focus:bg-white border border-transparent focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3] rounded-xl outline-none text-[#1d1d1f] transition-all"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={topK}
+                onChange={(e) => setTopK(Number(e.target.value))}
+                className="px-3 py-2 bg-black/[0.04] rounded-xl text-xs font-medium text-[#424245] outline-none cursor-pointer border border-transparent hover:border-black/[0.08]"
+              >
+                {[3, 5, 10].map((n) => (
+                  <option key={n} value={n}>
+                    Top {n} Matches
+                  </option>
+                ))}
+              </select>
+
+              <button
+                onClick={handleSearch}
+                disabled={mutation.isPending || !query.trim()}
+                className="flex items-center gap-1.5 px-4 py-2 bg-[#0071e3] hover:bg-[#0077ed] disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
+              >
+                {mutation.isPending ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <Search size={13} />
+                )}
+                <span>Search</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Suggestions */}
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-black/[0.04] text-xs">
+            <span className="text-[#86868b] text-[11px] font-medium">Try searching:</span>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                'iPhone dead screen after update',
+                'AirPods buzzing ANC',
+                'refund unauthorized in-app purchase',
+              ].map((term, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setQuery(term)
+                    mutation.mutate({ query: term, top_k: topK })
+                  }}
+                  className="text-[11px] px-2 py-0.5 rounded-full bg-black/[0.03] hover:bg-black/[0.06] text-[#424245] hover:text-[#0071e3] transition-colors cursor-pointer"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Results */}
+        {displayResults ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs text-[#86868b] px-1">
+              <span>
+                Found {displayResults.length} matches for "{query || 'sample query'}"
+              </span>
+              <span>Sorted by Cosine Distance</span>
+            </div>
+
+            <div className="space-y-3">
+              {displayResults.map((r: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="bg-white rounded-2xl p-5 border border-black/[0.06] shadow-2xs space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {r.intent && <IntentBadge intent={r.intent} size="sm" />}
+                      <span className="text-xs font-mono text-[#86868b]">
+                        {r.source_handle ?? `@customer_${idx + 1}`}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-xs font-semibold text-[#0071e3] bg-[#0071e3]/10 px-2 py-0.5 rounded-full">
+                      <BarChart2 size={12} />
+                      <span>{Math.round(r.score * 100)}% Match</span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-[#1d1d1f] font-normal leading-relaxed">
+                    "{r.text}"
+                  </p>
+
+                  {r.resolution && (
+                    <div className="p-2.5 rounded-xl bg-black/[0.02] text-xs text-[#515154] border border-black/[0.04]">
+                      <span className="font-semibold text-[#1d1d1f]">Resolution: </span>
+                      {r.resolution}
+                    </div>
+                  )}
+
+                  <ScoreBar score={r.score} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl p-12 border border-black/[0.06] text-center shadow-2xs">
+            <div className="w-12 h-12 rounded-2xl bg-black/[0.04] flex items-center justify-center mx-auto text-[#86868b] mb-3">
+              <Database size={22} />
+            </div>
+            <h3 className="text-sm font-semibold text-[#1d1d1f]">Search Qdrant Vector Index</h3>
+            <p className="text-xs text-[#86868b] mt-1 max-w-sm mx-auto">
+              Enter any Apple hardware, software, or billing inquiry to retrieve historically grounded resolutions via sub-millisecond semantic search.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
