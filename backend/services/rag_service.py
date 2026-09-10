@@ -88,6 +88,42 @@ def upsert_conversation(
     client.upsert(collection_name=COLLECTION_NAME, points=[point])
 
 
+def upsert_batch_conversations(items: list[dict]):
+    """
+    Batch upsert conversations into Qdrant.
+    Each item has: doc_id, text, intent, source_handle, reply, optional signoff, optional vector.
+    """
+    client = ensure_collection()
+    from services.embeddings import embed_batch
+
+    items_need_vector = [item for item in items if "vector" not in item]
+    if items_need_vector:
+        texts = [it["text"] for it in items_need_vector]
+        vectors = embed_batch(texts)
+        for it, v in zip(items_need_vector, vectors):
+            it["vector"] = v
+
+    points = [
+        PointStruct(
+            id=abs(hash(item["doc_id"])) % (2**63),
+            vector=item["vector"],
+            payload={
+                "doc_id": item["doc_id"],
+                "text": item["text"],
+                "intent": item.get("intent"),
+                "source_handle": item.get("source_handle"),
+                "reply": item.get("reply"),
+                "signoff": item.get("signoff", "^AS"),
+            },
+        )
+        for item in items
+    ]
+
+    chunk_size = 100
+    for i in range(0, len(points), chunk_size):
+        client.upsert(collection_name=COLLECTION_NAME, points=points[i : i + chunk_size])
+
+
 def get_collection_count() -> int:
     """Get total number of vectors in the collection."""
     try:

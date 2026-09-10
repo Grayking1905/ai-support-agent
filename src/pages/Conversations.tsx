@@ -523,6 +523,7 @@ export default function Conversations() {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
+                        message: newTicketText,
                         customer_message: newTicketText,
                         customer_handle: newCustomerName || '@user_inquiry',
                       }),

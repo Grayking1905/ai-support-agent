@@ -51,11 +51,14 @@ export default function AgentWorkbench() {
   const { setAgentResult, currentAgentResult, setProcessing, isProcessing } = useAppStore()
 
   const mutation = useMutation({
-    mutationFn: async (body: { customer_handle: string; customer_message: string }) => {
+    mutationFn: async (body: { customer_handle: string; customer_message: string; message?: string }) => {
       const res = await fetch(`${API}/api/agent/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          ...body,
+          message: body.message || body.customer_message,
+        }),
       })
       if (!res.ok) throw new Error(await res.text())
       return res.json()
