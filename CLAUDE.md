@@ -69,16 +69,18 @@ ai-support-agent/
 │   ├── schemas.py                # Pydantic schemas
 │   ├── venv/                     # Python 3.12 virtual environment
 │   ├── data/
-│   │   └── seed_data.py          # Database & Qdrant seed script (15 mock Apple conversations)
+│   │   ├── extract_apple_support.py # Kaggle TWCS streaming ETL script
+│   │   ├── apple_support_dataset.json # 300 clean paired conversations
+│   │   └── ingest_kaggle_apple.py  # Ingestion into PostgreSQL & Qdrant
 │   ├── routers/
-│   │   ├── conversations.py      # Conversation list & detail API
+│   │   ├── conversations.py      # Conversation list & detail API (with historical replies)
 │   │   ├── agent.py              # AI process triage endpoint (classify, RAG, reply, escalate)
 │   │   ├── knowledge.py          # Qdrant vector search endpoints
 │   │   └── analytics.py          # Metrics summary & 7-day trend API
 │   ├── services/
-│   │   ├── classifier.py         # Intent classification & sentiment analysis
+│   │   ├── classifier.py         # Hybrid intent classification & sentiment analysis
 │   │   ├── embeddings.py         # BAAI/bge-small-en-v1.5 embeddings
-│   │   ├── rag_service.py        # Qdrant query_points vector retrieval
+│   │   ├── rag_service.py        # Qdrant query_points vector retrieval & batch upsert
 │   │   ├── reply_generator.py    # Grounded response generation via Groq SDK
 │   │   └── escalation.py         # Human escalation rules engine
 │   ├── models.py                 # SQLAlchemy relational schema
@@ -89,6 +91,10 @@ ai-support-agent/
 │   ├── components/
 │   │   ├── agent/
 │   │   │   ├── ConversationCard.tsx
+│   │   │   ├── ConversationDrawer.tsx # Apple Inspector Sheet with historical reply grounding
+│   │   │   ├── ConfidenceIndicator.tsx
+│   │   │   ├── EscalationPanel.tsx
+│   │   │   ├── ReplyDraft.tsx
 │   │   │   └── IntentBadge.tsx
 │   │   ├── charts/
 │   │   │   ├── IntentDistribution.tsx
@@ -96,16 +102,16 @@ ai-support-agent/
 │   │   ├── layout/
 │   │   │   ├── Sidebar.tsx
 │   │   │   └── TopBar.tsx
-│   │   └── ui/                   # shadcn/ui primitives
+│   │   └── ui/                   # 53 shadcn/ui primitives
 │   ├── pages/
-│   │   ├── Dashboard.tsx         # Live metrics & analytics
-│   │   ├── Conversations.tsx     # 2-panel conversation explorer
+│   │   ├── Dashboard.tsx         # Live metrics (300 convs) & analytics
+│   │   ├── Conversations.tsx     # Apple segmented control tabs & mail preview cards
 │   │   ├── AgentWorkbench.tsx    # Live AI sandbox testing
 │   │   ├── KnowledgeBase.tsx     # Vector search UI
 │   │   └── Settings.tsx          # Infrastructure status & settings
 │   ├── store/useAppStore.ts      # Zustand global state
 │   ├── App.tsx                   # Main router shell
-│   ├── index.css                 # Dark theme tokens & Apple aesthetics
+│   ├── index.css                 # Apple HIG light theme tokens & SF typography
 │   └── main.tsx                  # QueryClientProvider & root mount
 ├── docker-compose.yml            # Docker services: supportmind-qdrant & supportmind-postgres
 └── components.json               # shadcn/ui configuration

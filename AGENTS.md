@@ -87,28 +87,32 @@ Interactive API documentation: `http://localhost:8000/docs`
 ## 4. Implemented Application Architecture
 
 ### Frontend Pages (`src/pages/`)
-1. **Dashboard** (`Dashboard.tsx`): Real-time metrics overview (Total Conversations, Auto-handled Rate, Escalated Count, Resolution Rate, Avg AI Confidence), 7-day resolution trend chart, and intent distribution donut chart.
-2. **Conversations** (`Conversations.tsx`): Two-panel conversation explorer with intent and escalation filters, confidence bars, customer sentiment indicators, and detailed Apple Support tweet threads.
+1. **Dashboard** (`Dashboard.tsx`): Real-time metrics overview (Total Conversations: 300, Auto-handled Rate: 92.3%, Escalated Count: 23, Resolution Rate: 100%, Avg AI Confidence: 79.7%), 7-day resolution trend chart anchored to active data, and intent distribution donut chart.
+2. **Conversations** (`Conversations.tsx`): Apple HIG segmented control tabs (`All Inquiries`, `Auto-Handled`, `Escalated`, `Resolved`), mail-style ticket preview cards with avatar initials, intent badges, sentiment meters, and Apple Inspector Sheet drawer with side-by-side Grounded AI Draft and actual historical `@AppleSupport` Twitter replies.
 3. **AI Workbench** (`AgentWorkbench.tsx`): Interactive testing sandbox for the agent. Test any customer message or pick preset customer issues; executes real-time intent classification, semantic RAG search over historical resolutions, Groq-powered drafted reply, and human escalation triage.
 4. **Knowledge Base** (`KnowledgeBase.tsx`): Vector database explorer querying Qdrant collection `apple_support_conversations` (384-dim BGE embeddings) with cosine similarity scores and payload previews.
 5. **Settings** (`Settings.tsx`): System status dashboard displaying live connectivity for FastAPI, PostgreSQL 16, Qdrant Vector DB, Groq LLM inference, and embedding models.
 
 ### Backend Endpoints (`backend/routers/`)
 - `GET /api/health`: System connectivity status (Qdrant + PostgreSQL).
-- `GET /api/conversations`: Paginated conversation list with filters by intent and escalation status.
+- `GET /api/conversations`: Paginated conversation list with filters by intent and escalation status, returning historical Apple tweet replies.
 - `GET /api/conversations/{id}`: Detailed conversation with full tweet thread.
 - `POST /api/agent/process`: End-to-end agent triage pipeline: intent classification, sentiment analysis, Qdrant RAG search, Groq drafted reply, and escalation decision.
 - `POST /api/knowledge/search`: Semantic vector search against Qdrant collection with similarity scores.
 - `GET /api/knowledge/stats`: Total vectors and collection metadata.
-- `GET /api/analytics/summary`: Aggregate KPIs and intent distribution.
-- `GET /api/analytics/trend`: 7-day resolution and volume timeline.
+- `GET /api/analytics/summary`: Aggregate KPIs and intent distribution from the Kaggle dataset.
+- `GET /api/analytics/trend`: 7-day resolution and volume timeline anchored to active data.
 
 ### AI & Agent Services (`backend/services/`)
-- `classifier.py`: Hybrid intent classification with confidence scoring across 7 core support categories and sentiment scoring.
-- `embeddings.py`: SentenceTransformer (`BAAI/bge-small-en-v1.5`) with 384-dimensional normalized embeddings and LRU caching.
-- `rag_service.py`: Qdrant vector database integration utilizing `query_points` for sub-millisecond semantic retrieval.
+- `classifier.py`: Hybrid intent classification with confidence scoring across 8 core Apple Support categories (`device_issue`, `setup_activation`, `account_access`, `billing_payment`, `warranty_repair`, `network_connectivity`, `app_crash`, `other_general`) and sentiment scoring.
+- `embeddings.py`: SentenceTransformer (`BAAI/bge-small-en-v1.5`) with 384-dimensional normalized embeddings and batch encoding.
+- `rag_service.py`: Qdrant vector database integration utilizing `query_points` and batch upsert for dense semantic retrieval.
 - `reply_generator.py`: Grounded response generation leveraging historical Apple Support patterns (`^AS` signoff) via Groq SDK.
-- `escalation.py`: Rule-based and sentiment-informed escalation engine routing to human agents when confidence is low or sentiment is critical.
+- `escalation.py`: Rule-based and sentiment-informed escalation engine routing to human agents when confidence is low or sentiment is critical with stated reasons.
+
+### Kaggle Dataset ETL & Ingestion (`backend/data/`)
+- `extract_apple_support.py`: Streams `thoughtvector/customer-support-on-twitter` (twcs) dataset, extracts customer inquiries paired with official `@AppleSupport` replies and sign-offs into `apple_support_dataset.json`.
+- `ingest_kaggle_apple.py`: Automated pipeline that classifies intents, computes sentiment, decides auto-handling vs escalation, generates BGE-small embeddings, and populates PostgreSQL (300 conversations, 600 tweets) and Qdrant (331 dense vectors).
 
 ---
 

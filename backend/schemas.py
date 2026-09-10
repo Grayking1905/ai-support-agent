@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, List
 from datetime import datetime
 
@@ -37,6 +37,8 @@ class ConversationResponse(BaseModel):
     escalation_reason: Optional[str] = None
     sentiment_score: Optional[float] = None
     drafted_reply: Optional[str] = None
+    historical_apple_reply: Optional[str] = None
+    apple_signoff: Optional[str] = None
     rag_sources_count: int
     is_resolved: bool
     tweets: List[TweetResponse] = []
@@ -46,10 +48,22 @@ class ConversationResponse(BaseModel):
 
 # ------ Agent schemas ------
 class AgentProcessRequest(BaseModel):
-    customer_handle: str = Field(..., example="@frustrated_user")
+    customer_handle: Optional[str] = Field(default="@customer_user", example="@frustrated_user")
     customer_name: Optional[str] = Field(None, example="John Smith")
-    message: str = Field(..., example="My iPhone won't turn on after the latest iOS update. Please help!")
+    message: Optional[str] = Field(None, example="My iPhone won't turn on after the latest iOS update. Please help!")
+    customer_message: Optional[str] = Field(None, example="My iPhone won't turn on after the latest iOS update. Please help!")
     conversation_history: Optional[List[TweetBase]] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def unify_message_field(cls, data):
+        if isinstance(data, dict):
+            msg = data.get("message") or data.get("customer_message") or ""
+            data["message"] = msg
+            data["customer_message"] = msg
+            if not data.get("customer_handle"):
+                data["customer_handle"] = "@customer_user"
+        return data
 
 class IntentClassification(BaseModel):
     intent: str

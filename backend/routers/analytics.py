@@ -59,9 +59,19 @@ def get_summary(db: Session = Depends(get_db)):
 def get_trend(db: Session = Depends(get_db)):
     """Return last 7 days volume for charting."""
     from datetime import datetime, timedelta
+    
+    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    recent_count = db.query(Conversation).filter(Conversation.created_at >= seven_days_ago).count()
+    
+    if recent_count > 0:
+        base_date = datetime.utcnow()
+    else:
+        max_date = db.query(func.max(Conversation.created_at)).scalar()
+        base_date = max_date if max_date else datetime.utcnow()
+
     days = []
     for i in range(6, -1, -1):
-        day = datetime.utcnow() - timedelta(days=i)
+        day = base_date - timedelta(days=i)
         start = day.replace(hour=0, minute=0, second=0, microsecond=0)
         end = day.replace(hour=23, minute=59, second=59)
         count = db.query(Conversation).filter(

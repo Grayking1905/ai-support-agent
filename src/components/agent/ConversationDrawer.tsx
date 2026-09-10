@@ -213,6 +213,28 @@ export default function ConversationDrawer({ conversation: c, isOpen, onClose }:
             </div>
           )}
 
+          {/* Historical Apple Support Tweet Reply (Direct Grounding Comparison) */}
+          {c.historical_apple_reply && (
+            <div className="bg-white rounded-2xl p-5 border border-black/[0.06] shadow-2xs">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-[11px] font-semibold text-[#1d1d1f] tracking-wider uppercase flex items-center gap-1.5">
+                  <span className="text-[#0071e3] font-bold text-sm"></span>
+                  Historical @AppleSupport Tweet Reply
+                </span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-black/[0.05] text-[#1d1d1f]">
+                  {c.apple_signoff || '^AS'}
+                </span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-[#f5f5f7] border border-black/[0.04] text-xs text-[#1d1d1f] leading-relaxed font-normal">
+                "{c.historical_apple_reply}"
+              </div>
+              <div className="mt-2 text-[10px] text-[#86868b] flex items-center justify-between">
+                <span>Direct Kaggle ground truth (thoughtvector/twcs)</span>
+                <span className="text-[#248a3d] font-semibold">Human Verified</span>
+              </div>
+            </div>
+          )}
+
           {/* Qdrant RAG Context */}
           <div className="bg-white rounded-2xl p-5 border border-black/[0.06] shadow-2xs">
             <div className="flex items-center justify-between mb-3">

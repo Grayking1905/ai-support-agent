@@ -24,6 +24,8 @@ export interface Conversation {
   escalation_reason?: string
   sentiment_score?: number
   drafted_reply?: string
+  historical_apple_reply?: string
+  apple_signoff?: string
   rag_sources_count: number
   is_resolved: boolean
 }

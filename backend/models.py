@@ -34,6 +34,8 @@ class Conversation(Base):
     escalation_reason = Column(Text, nullable=True)
     sentiment_score = Column(Float, nullable=True)
     drafted_reply = Column(Text, nullable=True)
+    historical_apple_reply = Column(Text, nullable=True)
+    apple_signoff = Column(String, nullable=True)
     rag_sources_count = Column(Integer, default=0)
     is_resolved = Column(Boolean, default=False)
     resolved_at = Column(DateTime, nullable=True)
