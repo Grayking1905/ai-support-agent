@@ -7,10 +7,10 @@ interface EscalationPanelProps {
 }
 
 const PRIORITY_CONFIG = {
-  low:    { color: 'var(--emerald)', bg: 'rgba(52,211,153,0.08)',  border: 'rgba(52,211,153,0.2)'  },
-  medium: { color: 'var(--amber)',   bg: 'rgba(251,191,36,0.08)',  border: 'rgba(251,191,36,0.2)'  },
-  high:   { color: '#fb923c',        bg: 'rgba(251,146,60,0.08)',  border: 'rgba(251,146,60,0.2)'  },
-  urgent: { color: 'var(--rose)',    bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)' },
+  low:    { color: '#248a3d', bg: 'rgba(52, 199, 89, 0.08)',  border: 'rgba(52, 199, 89, 0.2)'  },
+  medium: { color: '#c97500', bg: 'rgba(255, 149, 0, 0.08)', border: 'rgba(255, 149, 0, 0.2)' },
+  high:   { color: '#d70015', bg: 'rgba(255, 59, 48, 0.08)',  border: 'rgba(255, 59, 48, 0.2)'  },
+  urgent: { color: '#d70015', bg: 'rgba(255, 59, 48, 0.12)', border: 'rgba(255, 59, 48, 0.3)'  },
 }
 
 export default function EscalationPanel({ decision, reason, priority }: EscalationPanelProps) {
@@ -22,45 +22,45 @@ export default function EscalationPanel({ decision, reason, priority }: Escalati
     : ShieldCheck
 
   return (
-    <div style={{
-      border: `1px solid ${isEscalated ? pCfg.border : 'rgba(52,211,153,0.25)'}`,
-      borderRadius: 'var(--radius-lg)',
-      background: isEscalated ? pCfg.bg : 'rgba(52,211,153,0.05)',
-      padding: '14px',
-      display: 'flex', flexDirection: 'column', gap: '10px',
-    }}>
-      {/* Status row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Icon size={16} style={{ color: isEscalated ? pCfg.color : 'var(--emerald)', flexShrink: 0 }} />
-          <span style={{
-            fontSize: '0.85rem', fontWeight: 700,
-            color: isEscalated ? pCfg.color : 'var(--emerald)',
-          }}>
-            {isEscalated ? 'Escalate to Human' : 'Auto-Handle'}
+    <div
+      className="p-4 rounded-2xl border transition-all"
+      style={{
+        borderColor: isEscalated ? pCfg.border : 'rgba(52, 199, 89, 0.2)',
+        backgroundColor: isEscalated ? pCfg.bg : 'rgba(52, 199, 89, 0.06)',
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Icon
+            size={16}
+            style={{ color: isEscalated ? pCfg.color : '#34c759' }}
+            className="flex-shrink-0"
+          />
+          <span
+            className="text-xs font-semibold tracking-tight"
+            style={{ color: isEscalated ? pCfg.color : '#248a3d' }}
+          >
+            {isEscalated ? 'Escalated to Human Specialist' : 'Auto-Handled by SupportMind'}
           </span>
         </div>
 
-        {/* Priority badge */}
-        <span style={{
-          padding: '2px 10px', borderRadius: '99px',
-          background: pCfg.bg, color: pCfg.color,
-          border: `1px solid ${pCfg.border}`,
-          fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
-        }}>
-          {priority}
+        <span
+          className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider border"
+          style={{
+            backgroundColor: '#ffffff',
+            color: pCfg.color,
+            borderColor: pCfg.border,
+          }}
+        >
+          {priority} Priority
         </span>
       </div>
 
-      {/* Reason */}
-      <p style={{
-        fontSize: '0.8rem', color: 'var(--text-secondary)',
-        lineHeight: 1.5, margin: 0,
-        padding: '8px 10px', borderRadius: 'var(--radius-sm)',
-        background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)',
-      }}>
+      {/* Reason text */}
+      <div className="p-2.5 rounded-xl bg-white/90 border border-black/[0.04] text-xs text-[#515154] leading-relaxed">
         {reason}
-      </p>
+      </div>
     </div>
   )
 }

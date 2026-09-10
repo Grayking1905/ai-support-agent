@@ -1,134 +1,164 @@
 import { useAppStore } from '@/store/useAppStore'
 import {
-  LayoutDashboard, MessageSquare, Bot, Database, Settings,
-  ChevronLeft, ChevronRight, Zap,
+  LayoutDashboard,
+  MessageSquare,
+  Bot,
+  Database,
+  Sliders,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Activity,
 } from 'lucide-react'
-
-const NAV_ITEMS = [
-  { id: 'dashboard',      label: 'Dashboard',    icon: LayoutDashboard },
-  { id: 'conversations',  label: 'Conversations', icon: MessageSquare },
-  { id: 'workbench',      label: 'AI Workbench',  icon: Bot },
-  { id: 'knowledge',      label: 'Knowledge Base',icon: Database },
-  { id: 'settings',       label: 'Settings',      icon: Settings },
-]
 
 export default function Sidebar() {
   const { activePage, setActivePage, sidebarCollapsed, toggleSidebar } = useAppStore()
 
+  const navSections = [
+    {
+      title: 'PLATFORM',
+      items: [
+        { id: 'dashboard',     label: 'Overview',      icon: LayoutDashboard },
+        { id: 'conversations', label: 'Conversations', icon: MessageSquare, badge: '15' },
+        { id: 'workbench',     label: 'AI Workbench',  icon: Bot },
+      ],
+    },
+    {
+      title: 'KNOWLEDGE',
+      items: [
+        { id: 'knowledge',     label: 'Vector Base',   icon: Database },
+      ],
+    },
+    {
+      title: 'CONFIGURATION',
+      items: [
+        { id: 'settings',      label: 'System Rules',  icon: Sliders },
+      ],
+    },
+  ]
+
   return (
     <aside
-      style={{
-        width: sidebarCollapsed ? '64px' : '220px',
-        minHeight: '100vh',
-        background: 'rgba(15,15,26,0.95)',
-        borderRight: '1px solid var(--border)',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'width 250ms cubic-bezier(0.4,0,0.2,1)',
-        flexShrink: 0,
-        position: 'sticky',
-        top: 0,
-      }}
+      className={`bg-white border-r border-black/[0.08] flex flex-col flex-shrink-0 sticky top-0 h-screen z-20 select-none transition-all duration-200 ${
+        sidebarCollapsed ? 'w-16' : 'w-[230px]'
+      }`}
     >
-      {/* Brand */}
-      <div style={{
-        padding: sidebarCollapsed ? '20px 0' : '20px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        borderBottom: '1px solid var(--border)',
-        justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-      }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: 8,
-          background: 'linear-gradient(135deg, #0066CC 0%, #338FE8 100%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-          boxShadow: '0 0 16px rgba(0,102,204,0.4)',
-        }}>
-          <Zap size={17} color="#fff" />
-        </div>
-        {!sidebarCollapsed && (
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
-              SupportMind
+      {/* Workspace Header */}
+      <div className="h-[52px] border-b border-black/[0.06] px-4 flex items-center justify-between">
+        {!sidebarCollapsed ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-md bg-[#1d1d1f] text-white flex items-center justify-center text-xs font-bold">
+              
             </div>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Apple Support AI
+            <div>
+              <span className="text-xs font-bold text-[#1d1d1f] tracking-tight">
+                SupportMind
+              </span>
+              <span className="text-[10px] text-[#86868b] block -mt-0.5 font-normal">
+                Apple Operations
+              </span>
             </div>
           </div>
+        ) : (
+          <div className="w-7 h-7 rounded-md bg-[#1d1d1f] text-white flex items-center justify-center text-xs font-bold mx-auto">
+            
+          </div>
+        )}
+
+        {!sidebarCollapsed && (
+          <button
+            onClick={toggleSidebar}
+            className="p-1 rounded text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/[0.04] transition-colors"
+            title="Collapse sidebar"
+          >
+            <ChevronLeft size={16} />
+          </button>
         )}
       </div>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-        {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
-          const active = activePage === id
-          return (
-            <button
-              key={id}
-              onClick={() => setActivePage(id)}
-              title={sidebarCollapsed ? label : undefined}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: sidebarCollapsed ? '10px 0' : '9px 12px',
-                borderRadius: 'var(--radius-md)',
-                border: 'none',
-                background: active
-                  ? 'linear-gradient(135deg, rgba(0,102,204,0.2) 0%, rgba(51,143,232,0.12) 100%)'
-                  : 'transparent',
-                color: active ? '#5ba8f5' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                fontSize: '0.875rem',
-                fontWeight: active ? 600 : 400,
-                transition: 'all 200ms ease',
-                width: '100%',
-                justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                boxShadow: active ? 'inset 0 0 0 1px rgba(0,102,204,0.25)' : 'none',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={e => {
-                if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'
-              }}
-              onMouseLeave={e => {
-                if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
-              }}
-            >
-              <Icon size={17} style={{ flexShrink: 0 }} />
-              {!sidebarCollapsed && label}
-            </button>
-          )
-        })}
-      </nav>
+      {/* Navigation Links */}
+      <div className="flex-1 py-3 px-2 overflow-y-auto space-y-4">
+        {navSections.map((section, idx) => (
+          <div key={idx}>
+            {!sidebarCollapsed && (
+              <div className="text-[10px] font-semibold text-[#86868b] tracking-wider px-3 mb-1 uppercase">
+                {section.title}
+              </div>
+            )}
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const Icon = item.icon
+                const isActive = activePage === item.id
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActivePage(item.id)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer text-left ${
+                      isActive
+                        ? 'bg-black/[0.06] text-[#1d1d1f] font-semibold shadow-2xs'
+                        : 'text-[#515154] hover:text-[#1d1d1f] hover:bg-black/[0.03] font-medium'
+                    } ${sidebarCollapsed ? 'justify-center px-0' : ''}`}
+                    title={item.label}
+                  >
+                    <Icon
+                      size={16}
+                      className={isActive ? 'text-[#0071e3]' : 'text-[#86868b]'}
+                      strokeWidth={isActive ? 2.2 : 1.8}
+                    />
+                    {!sidebarCollapsed && (
+                      <>
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {item.badge && (
+                          <span
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                              isActive
+                                ? 'bg-white text-[#1d1d1f] shadow-2xs'
+                                : 'bg-black/[0.05] text-[#86868b]'
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
 
-      {/* Collapse toggle */}
-      <button
-        onClick={toggleSidebar}
-        style={{
-          margin: '12px 8px',
-          padding: '9px 12px',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border)',
-          background: 'transparent',
-          color: 'var(--text-muted)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-          gap: '8px',
-          fontSize: '0.8rem',
-          fontFamily: 'inherit',
-          transition: 'all 200ms ease',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-      >
-        {sidebarCollapsed ? <ChevronRight size={15} /> : <><ChevronLeft size={15} /><span>Collapse</span></>}
-      </button>
+      {/* Bottom Footer Actions */}
+      <div className="p-3 border-t border-black/[0.06] space-y-1.5">
+        {!sidebarCollapsed ? (
+          <>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActivePage('workbench')}
+                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-black/[0.03] hover:bg-black/[0.06] rounded-lg text-[11px] font-medium text-[#424245] transition-colors"
+              >
+                <Sparkles size={13} className="text-[#0071e3]" />
+                <span>Simulate</span>
+              </button>
+              <button
+                onClick={() => setActivePage('settings')}
+                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-black/[0.03] hover:bg-black/[0.06] rounded-lg text-[11px] font-medium text-[#424245] transition-colors"
+              >
+                <Activity size={13} className="text-[#34c759]" />
+                <span>Status</span>
+              </button>
+            </div>
+          </>
+        ) : (
+          <button
+            onClick={toggleSidebar}
+            className="w-full flex justify-center py-1.5 text-[#86868b] hover:text-[#1d1d1f]"
+          >
+            <ChevronRight size={16} />
+          </button>
+        )}
+      </div>
     </aside>
   )
 }

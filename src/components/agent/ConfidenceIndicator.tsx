@@ -5,26 +5,33 @@ interface ConfidenceIndicatorProps {
 
 export default function ConfidenceIndicator({ value, label }: ConfidenceIndicatorProps) {
   const pct = Math.round(value * 100)
-  const color =
-    pct >= 85 ? 'var(--emerald)' :
-    pct >= 65 ? 'var(--amber)' :
-    'var(--rose)'
+  const isHigh = pct >= 85
+  const isMedium = pct >= 65
+  const color = isHigh ? '#248a3d' : isMedium ? '#c97500' : '#d70015'
+  const bgColor = isHigh ? 'rgba(52, 199, 89, 0.1)' : isMedium ? 'rgba(255, 149, 0, 0.1)' : 'rgba(255, 59, 48, 0.1)'
+  const barColor = isHigh ? '#34c759' : isMedium ? '#ff9500' : '#ff3b30'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          {label ?? 'Confidence'}
+    <div className="flex flex-col gap-1.5 w-full">
+      <div className="flex justify-between items-center text-xs">
+        <span className="text-[#86868b] font-medium text-[11px] tracking-wide uppercase">
+          {label ?? 'AI Confidence'}
         </span>
-        <span style={{ fontSize: '0.8rem', fontWeight: 700, color }}>{pct}%</span>
+        <span
+          className="font-semibold px-2 py-0.5 rounded-full text-[11px]"
+          style={{ color, backgroundColor: bgColor }}
+        >
+          {pct}%
+        </span>
       </div>
-      <div style={{ height: 4, borderRadius: '99px', background: 'var(--bg-elevated)', overflow: 'hidden' }}>
-        <div style={{
-          height: '100%', width: `${pct}%`, borderRadius: '99px',
-          background: color,
-          transition: 'width 600ms cubic-bezier(0.4,0,0.2,1)',
-          boxShadow: `0 0 8px ${color}66`,
-        }} />
+      <div className="h-1.5 rounded-full bg-black/[0.05] overflow-hidden w-full">
+        <div
+          className="h-full rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${pct}%`,
+            backgroundColor: barColor,
+          }}
+        />
       </div>
     </div>
   )
