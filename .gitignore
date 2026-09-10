@@ -1,0 +1,88 @@
+# ── Dependencies ──────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ── Python Virtual Environments ────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+backend/venv/
+backend/.venv/
+backend/env/
+backend/ENV/
+*/venv/
+*/.venv/
+
+# ── Python Bytecode & Cache ────────────────────────────────────────
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# ── Build & Distribution ───────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+*.egg-info/
+.eggs/
+
+# ── Environment & Secrets ──────────────────────────────────────────
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+*.local
+
+# ── Vite & Framework Cache ─────────────────────────────────────────
+.vite/
+.turbo/
+.cache/
+
+# ── Testing & Coverage ─────────────────────────────────────────────
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Databases & Storage ────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+qdrant_data/
+postgres_data/
+
+# ── Logs ───────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ── IDEs & Operating Systems ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+# ── Agent Skills & Local Artifacts ────────────────────────────────
+.agents/skills/
+.agents/memory/
+.claude/skills/
+.claude/memory/
+.system_generated/
+*/.system_generated/
+brain/
+scratch/

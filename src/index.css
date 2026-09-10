@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Design Tokens ─────────────────────────────────────────────── */
+:root {
+  --bg-base:       #09090f;
+  --bg-surface:    #0f0f1a;
+  --bg-elevated:   #16162a;
+  --bg-card:       rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.055);
+
+  --border:        rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.12);
+
+  --accent:        #0066CC;        /* Apple blue */
+  --accent-light:  #338FE8;
+  --accent-glow:   rgba(0,102,204,0.25);
+
+  --emerald:       #34d399;
+  --amber:         #fbbf24;
+  --rose:          #f87171;
+  --violet:        #a78bfa;
+
+  --text-primary:   #f0f0f5;
+  --text-secondary: #8b8b9f;
+  --text-muted:     #52527a;
+
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px var(--border);
+  --shadow-glow: 0 0 24px var(--accent-glow);
+
+  --transition: 200ms cubic-bezier(0.4,0,0.2,1);
+
+  --sidebar:       hsl(0 0% 98%);
+
+  --sidebar-foreground:       hsl(240 5.3% 26.1%);
+
+  --sidebar-primary:       hsl(240 5.9% 10%);
+
+  --sidebar-primary-foreground:       hsl(0 0% 98%);
+
+  --sidebar-accent:       hsl(240 4.8% 95.9%);
+
+  --sidebar-accent-foreground:       hsl(240 5.9% 10%);
+
+  --sidebar-border:       hsl(220 13% 91%);
+
+  --sidebar-ring:       hsl(217.2 91.2% 59.8%);
+}
+
+/* ── Reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Utilities ─────────────────────────────────────────────────── */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--border);
+}
+
+.glass-strong {
+  background: rgba(22,22,42,0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-strong);
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
+}
+
+/* ── Typography ────────────────────────────────────────────────── */
+h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.015em; }
+h3 { font-size: 1rem;    font-weight: 600; }
+
+.text-xs  { font-size: 0.75rem;  }
+.text-sm  { font-size: 0.875rem; }
+.text-base{ font-size: 1rem;     }
+.text-lg  { font-size: 1.125rem; }
+
+.label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Intent / Status Badges ────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.badge-blue    { background: rgba(0,102,204,0.15); color: #5ba8f5; border: 1px solid rgba(0,102,204,0.3); }
+.badge-emerald { background: rgba(52,211,153,0.12); color: var(--emerald); border: 1px solid rgba(52,211,153,0.25); }
+.badge-amber   { background: rgba(251,191,36,0.12);  color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+.badge-rose    { background: rgba(248,113,113,0.12); color: var(--rose); border: 1px solid rgba(248,113,113,0.25); }
+.badge-violet  { background: rgba(167,139,250,0.12); color: var(--violet); border: 1px solid rgba(167,139,250,0.25); }
+.badge-muted   { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border); }
+
+/* ── Animated Pulse ─────────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+.pulse-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ── Shimmer skeleton ───────────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, rgba(255,255,255,0.04) 50%, var(--bg-elevated) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Fade-in ────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+  animation: fadeInUp 0.35s ease both;
+}
+
+.dark {
+  --sidebar:       hsl(240 5.9% 10%);
+  --sidebar-foreground:       hsl(240 4.8% 95.9%);
+  --sidebar-primary:       hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground:       hsl(0 0% 100%);
+  --sidebar-accent:       hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground:       hsl(240 4.8% 95.9%);
+  --sidebar-border:       hsl(240 3.7% 15.9%);
+  --sidebar-ring:       hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+  --color-sidebar:       var(--sidebar);
+  --color-sidebar-foreground:       var(--sidebar-foreground);
+  --color-sidebar-primary:       var(--sidebar-primary);
+  --color-sidebar-primary-foreground:       var(--sidebar-primary-foreground);
+  --color-sidebar-accent:       var(--sidebar-accent);
+  --color-sidebar-accent-foreground:       var(--sidebar-accent-foreground);
+  --color-sidebar-border:       var(--sidebar-border);
+  --color-sidebar-ring:       var(--sidebar-ring);
+}
